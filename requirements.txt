@@ -1,0 +1,11 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic-settings>=2.4
+pyjwt>=2.9
+numpy>=2.0
+anthropic
+openai
+pypdf>=4.0
+redis>=5.0
+httpx>=0.27
+pytest>=8.0

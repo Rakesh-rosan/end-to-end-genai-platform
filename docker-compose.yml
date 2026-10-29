@@ -1,0 +1,31 @@
+# nginx (load balancer + edge rate limit) -> 2 app replicas -> shared Redis + DB volume
+#
+#   docker compose up --build
+#   open http://localhost:8080
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports: ["8080:80"]
+    volumes: ["./deploy/nginx.conf:/etc/nginx/nginx.conf:ro"]
+    depends_on: [app1, app2]
+
+  app1: &app
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      REDIS_URL: redis://redis:6379/0   # shared rate-limit counters across replicas
+      DB_PATH: /srv/data/db/commerce.db
+    volumes:
+      - dbdata:/srv/data/db
+      - ./data/knowledge:/srv/data/knowledge:ro   # edit docs on the host -> CDC re-ingests
+    depends_on: [redis]
+
+  app2: *app
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  dbdata:
